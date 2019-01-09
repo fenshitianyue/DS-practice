@@ -1,31 +1,57 @@
 #pragma once
 
-//------------¶¨ÒåÁÚ½Ó±í------------
+//------------å®šä¹‰é‚»æ¥è¡¨------------
+#define MAX_DATA_LANGTH 20
 
-//¶¨Òå½Úµã
+//å®šä¹‰èŠ‚ç‚¹
 typedef struct node{
-	int  adjvex; //ÁÚ½ÓµãÔÚ¶¥¼¶Á´±íÖĞµÄÏÂ±ê
-	int  w; //È¨ÖØ
-	struct node *next_edge; //Ö¸ÏòÏÂÒ»¸öÁÚ½ÓµãµÄÖ¸Õë
+	int  adjvex; //é‚»æ¥ç‚¹åœ¨é¡¶çº§é“¾è¡¨ä¸­çš„ä¸‹æ ‡
+	int  w; //æƒé‡
+	struct node *next_edge; //æŒ‡å‘ä¸‹ä¸€ä¸ªé‚»æ¥ç‚¹çš„æŒ‡é’ˆ
 }edge_node;
 
-//¶¨Òå±ß¼¯ 
+//å®šä¹‰è¾¹é›† 
 typedef struct{
-	char     data; //¶¥µãµÄÊı¾İ
-	int      in_degree; //Èë¶È
-	edge_node  *first_edge; //Ö¸ÏòÁÚ½ÓµãµÄÖ¸Õë
+	int     data; 
+	int      in_degree; //å…¥åº¦
+	edge_node  *first_edge; //æŒ‡å‘é‚»æ¥ç‚¹çš„æŒ‡é’ˆ
 }vex_node;
 
-//------------¶¨ÒåÁÚ½Ó±í------------
+//------------å®šä¹‰é‚»æ¥è¡¨------------
 
-//------------½Ó¿Úº¯Êı------------
+//------------æ¥å£å‡½æ•°------------
 
-//´´½¨Í¼µÄº¯Êı
-//²ÎÊıËµÃ÷£ºÍ¼£¬¶¥µãµÄ¸öÊı£¬±ßµÄ¸öÊı
+//åˆ›å»ºå›¾çš„å‡½æ•°
+//å‚æ•°è¯´æ˜ï¼šå›¾ï¼Œé¡¶ç‚¹çš„ä¸ªæ•°ï¼Œè¾¹çš„ä¸ªæ•°
 void CreateGraph(vex_node* Graph, int vex_number, int arc_number);
 
-//Ñ°ÕÒ¹Ø¼üÂ·¾¶µÄº¯Êı
-//²ÎÊıËµÃ÷£ºÍ¼£¬¶¥µãµÄ¸öÊı£¬±ßµÄ¸öÊı
+//å¯»æ‰¾å…³é”®è·¯å¾„çš„å‡½æ•°
+//å‚æ•°è¯´æ˜ï¼šå›¾ï¼Œé¡¶ç‚¹çš„ä¸ªæ•°ï¼Œè¾¹çš„ä¸ªæ•°
 int find_key_path(vex_node* Graph, int vex_number, int arc_number);
 
-//------------½Ó¿Úº¯Êı------------
+//------------æ¥å£å‡½æ•°------------
+
+
+//------------å®šä¹‰å…³é”®æ´»åŠ¨ç»“æ„------------
+#define MAX_KEY_ACT 20
+
+//å°è£…å…³é”®è·¯å¾„èŠ‚ç‚¹ç±»å‹
+typedef struct {
+	int vex;
+	int visit; //0è¡¨ç¤ºæ²¡æœ‰è®¿é—®è¿‡ï¼Œ1è¡¨ç¤ºè®¿é—®è¿‡
+	int flag; //0è¡¨ç¤ºè®¿é—®ä½æ— æ•ˆï¼Œ1è¡¨ç¤ºè®¿é—®ä½æœ‰æ•ˆ
+}path_node;
+
+//å­˜æ”¾å…³é”®æ´»åŠ¨
+typedef struct {
+	path_node begin;
+	path_node end;
+}key_activities;
+
+key_activities key_act[MAX_KEY_ACT]; //å­˜å‚¨å…³é”®æ´»åŠ¨çš„æ•°ç»„
+
+//------------å®šä¹‰å…³é”®æ´»åŠ¨ç»“æ„------------
+
+int find(key_activities array[], int size, int next);
+void repeat(key_activities array[], int size);
+int check(key_activities array[], int size);

@@ -5,27 +5,26 @@
 
 void CreateGraph(vex_node* Graph, int vex_number, int arc_number) {
 	int begin, end, weight;
-	char ch;
 	edge_node* p;
-	//³õÊ¼»¯
+	//åˆå§‹åŒ–
 	for (int i = 0; i<vex_number; i++) {
-		Graph[i].in_degree = 0; 
+		Graph[i].in_degree = 0;
 		Graph[i].first_edge = NULL;
 	}
-	printf("ÇëÊäÈëÕâ¸öÍ¼ÖĞµÄ¸÷¸ö¶¥µãµÄÖµ:\n");
+	printf("è¯·è¾“å…¥è¿™ä¸ªå›¾ä¸­çš„å„ä¸ªé¡¶ç‚¹çš„å€¼:\n");
+	
 	for (int i = 0; i < vex_number; i++) {
 		fflush(stdin);
-		scanf("%c", &ch);
-		Graph[i].data = ch;
+		scanf("%d", &Graph[i].data);
 	}
-	printf("ÊäÈëÍ¼ÖĞ»¡µÄÆğÊ¼µã¼°È¨Öµ£¨¸ñÊ½£ºÆğµã ÖÕµã È¨Öµ£©\n");
+	printf("è¾“å…¥å›¾ä¸­å¼§çš„èµ·å§‹ç‚¹åŠæƒå€¼ï¼ˆæ ¼å¼ï¼šèµ·ç‚¹ ç»ˆç‚¹ æƒå€¼ï¼‰\n");
 	for (int i = 0; i < arc_number; i++) {
 		fflush(stdin);
 		scanf("%d%d%d", &begin, &end, &weight);
 		p = (edge_node*)malloc(sizeof(edge_node));
 		p->adjvex = end - 1;
 		p->w = weight;
-		Graph[end - 1].in_degree++; //ÓĞ»¡Ö¸Ïò¸Ã¶¥µã£¬Ôò¸Ã¶¥µãÈë¶È+1
+		Graph[end - 1].in_degree++; //æœ‰å¼§æŒ‡å‘è¯¥é¡¶ç‚¹ï¼Œåˆ™è¯¥é¡¶ç‚¹å…¥åº¦+1
 		p->next_edge = Graph[begin - 1].first_edge;
 		Graph[begin - 1].first_edge = p;
 	}
@@ -33,61 +32,59 @@ void CreateGraph(vex_node* Graph, int vex_number, int arc_number) {
 
 
 int find_key_path(vex_node* Graph, int vex_number, int arc_number) {
-	int total_time = 0;
-	int m = 0; //?
-	int  t = 0; //t ÎªsvµÄÏÂ±ê
-	char sv[100]; //¼ÇÂ¼¹Ø¼üÂ·¾¶ÉÏ¶¥µãµÄÊı¾İ have bug£ºÕâÀïÒªĞŞ¸ÄÎªÖ§³Ö¶àÌõ¹Ø¼üÂ·¾¶£¬¶ø²»ÊÇÖ»Ò»Ìõ
-	int front, rear; //¶ÓÍ·ºÍ¶ÓÎ²
-	int *topology_queue; //ÍØÆË¶ÓÁĞ
+	int total_time = 0; 
+	int m = 0; //ç”¨äºæ£€æµ‹å›¾ä¸­æ˜¯å¦æœ‰ç¯
+	int  t = 0; //t ä¸ºpathçš„ä¸‹æ ‡
+	int front, rear; //é˜Ÿå¤´å’Œé˜Ÿå°¾
+	int *topology_queue; //æ‹“æ‰‘é˜Ÿåˆ—
 	int *vl, *ve, *el, *ee;
-	int j = 0, k = 0; //ÁÙÊ±ÏÂ±ê
+	int j = 0, k = 0; //ä¸´æ—¶ä¸‹æ ‡
 	front = rear = -1;
 	topology_queue = (int*)malloc(vex_number * sizeof(int));
 
-	vl = (int*)malloc(vex_number * sizeof(int)); //¶¥µãµÄ×îÍí·¢ÉúÊ±¼ä
-	ve = (int*)malloc(vex_number * sizeof(int)); //¶¥µãµÄ×îÔç·¢ÉúÊ±¼ä
+	vl = (int*)malloc(vex_number * sizeof(int)); //é¡¶ç‚¹çš„æœ€æ™šå‘ç”Ÿæ—¶é—´
+	ve = (int*)malloc(vex_number * sizeof(int)); //é¡¶ç‚¹çš„æœ€æ—©å‘ç”Ÿæ—¶é—´
 
-	el = (int*)malloc(arc_number * sizeof(int)); //»î¶¯¿ªÊ¼µÄ×îÍíÊ±¼ä
-	ee = (int*)malloc(arc_number * sizeof(int)); //»î¶¯¿ªÊ¼µÄ×îÔçÊ±¼ä
+	el = (int*)malloc(arc_number * sizeof(int)); //æ´»åŠ¨å¼€å§‹çš„æœ€æ™šæ—¶é—´
+	ee = (int*)malloc(arc_number * sizeof(int)); //æ´»åŠ¨å¼€å§‹çš„æœ€æ—©æ—¶é—´
 
 	edge_node* p;
 
 	for (int i = 0; i < vex_number; i++)
 		ve[i] = 0;
-	//½«µÚÒ»¸öÈë¶ÈÎª1µÄ¶¥µãÏÂ±ê·Åµ½ÍØÆË¶ÓÁĞÖĞ
+	//å°†ç¬¬ä¸€ä¸ªå…¥åº¦ä¸º1çš„é¡¶ç‚¹ä¸‹æ ‡æ”¾åˆ°æ‹“æ‰‘é˜Ÿåˆ—ä¸­
 	for (int i = 0; i < vex_number; i++) {
-		if (Graph[i].in_degree == 0) //Èç¹ûµ±Ç°¶¥µãµÄÈë¶ÈÎª0
+		if (Graph[i].in_degree == 0) //å¦‚æœå½“å‰é¡¶ç‚¹çš„å…¥åº¦ä¸º0
 			topology_queue[++rear] = i;
-		//m++; //Ñ­»·½áÊøºóm = ¶¥µã¸öÊı
 	}
-	while (front != rear) {//Èç¹ûÍØÆË¶ÓÁĞÃ»Âú
+	while (front != rear) {//å¦‚æœæ‹“æ‰‘é˜Ÿåˆ—æ²¡æ»¡
 		front++;
-		j = topology_queue[front]; //µ±Ç°ÍØÆËÅÅĞòµÄ¶¥µã£¨Èë¶ÈÎª0£©
-		m++; //Èë¶ÈÎª0µÄ¶¥µã¸öÊı
-		p = Graph[j].first_edge; //pÖ¸Ïòµ±Ç°ÍØÆËÅÅĞòµÄ¶¥µãµÄÁÚ½Ó±í
-		while (p) { 
-			k = p->adjvex; //kÎªÁÚ½Ó±íÖĞµ±Ç°ÍØÆËÅÅĞòµÄ¶¥µãÔÚ¶¥¼¶Á´±íÖĞµÄÏÂ±ê
+		j = topology_queue[front]; //å½“å‰æ‹“æ‰‘æ’åºçš„é¡¶ç‚¹ï¼ˆå…¥åº¦ä¸º0ï¼‰
+		m++; //å…¥åº¦ä¸º0çš„é¡¶ç‚¹ä¸ªæ•°
+		p = Graph[j].first_edge; //pæŒ‡å‘å½“å‰æ‹“æ‰‘æ’åºçš„é¡¶ç‚¹çš„é‚»æ¥è¡¨
+		while (p) {
+			k = p->adjvex; //kä¸ºé‚»æ¥è¡¨ä¸­å½“å‰æ‹“æ‰‘æ’åºçš„é¡¶ç‚¹åœ¨é¡¶çº§é“¾è¡¨ä¸­çš„ä¸‹æ ‡
 			Graph[k].in_degree--;
-			//Èç¹ûÉÏÒ»¸öÍØÆËÅÅĞò¶¥µã×îÔç¿ªÊ¼Ê±¼ä + »î¶¯Ê±¼ä > ÏÂÒ»¸öÍØÆËÅÅĞò¶¥µãµÄ×îÔç¿ªÊ¼Ê±¼ä
-			//Ôò¸üĞÂÏÂÒ»¸öÍØÆËÅÅĞò¶¥µãµÄ×îÔç¿ªÊ¼Ê±¼ä
-			if (ve[j] + p->w >ve[k]) 
+			//å¦‚æœä¸Šä¸€ä¸ªæ‹“æ‰‘æ’åºé¡¶ç‚¹æœ€æ—©å¼€å§‹æ—¶é—´ + æ´»åŠ¨æ—¶é—´ > ä¸‹ä¸€ä¸ªæ‹“æ‰‘æ’åºé¡¶ç‚¹çš„æœ€æ—©å¼€å§‹æ—¶é—´
+			//åˆ™æ›´æ–°ä¸‹ä¸€ä¸ªæ‹“æ‰‘æ’åºé¡¶ç‚¹çš„æœ€æ—©å¼€å§‹æ—¶é—´
+			if (ve[j] + p->w >ve[k])
 				ve[k] = ve[j] + p->w;
 
-			if (Graph[k].in_degree == 0) //Èç¹ûÁÚ½Ó±íÖĞµÄµ±Ç°½ÚµãÈë¶È-1 = 0£¬ËµÃ÷¸Ã¶¥µã¾ÍÊÇÏÂÒ»¸öÒªÍØÆËÅÅĞòµÄ¶¥µã
+			if (Graph[k].in_degree == 0) //å¦‚æœé‚»æ¥è¡¨ä¸­çš„å½“å‰èŠ‚ç‚¹å…¥åº¦-1 = 0ï¼Œè¯´æ˜è¯¥é¡¶ç‚¹å°±æ˜¯ä¸‹ä¸€ä¸ªè¦æ‹“æ‰‘æ’åºçš„é¡¶ç‚¹
 				topology_queue[++rear] = k;
 			p = p->next_edge;
-		}	
-}
-	if (m < vex_number) { //Èç¹ûmĞ¡ÓÚ¶¥µãÊıÄ¿£¬ÔòËµÃ÷ÓĞ»ØÂ·
-		printf("\nÄ¿±êÍ¼ÖĞ°üº¬»ØÂ·£¡£¡£¡\n");
+		}
+	}
+	if (m < vex_number) { //å¦‚æœmå°äºé¡¶ç‚¹æ•°ç›®ï¼Œåˆ™è¯´æ˜æœ‰å›è·¯
+		printf("\nç›®æ ‡å›¾ä¸­åŒ…å«å›è·¯ï¼ï¼ï¼\n");
 		return 0;
 	}
 
-	total_time = ve[vex_number - 1]; //×ÜÊ±¼ä¼´×îºóÒ»¸öÔ´µãµÄ×îÔç·¢ÉúÊ±¼ä
+	total_time = ve[vex_number - 1]; //æ€»æ—¶é—´å³æœ€åä¸€ä¸ªæºç‚¹çš„æœ€æ—©å‘ç”Ÿæ—¶é—´
 
-	//vl[i] = total_time - ¸Ã¶¥µãÍØÆËĞòÁĞÉÏÒ»¸ö¶¥µãºÍ¸Ã¶¥µãÖ®¼äµÄ»î¶¯Ê±¼ä
+	//vl[i] = total_time - è¯¥é¡¶ç‚¹æ‹“æ‰‘åºåˆ—ä¸Šä¸€ä¸ªé¡¶ç‚¹å’Œè¯¥é¡¶ç‚¹ä¹‹é—´çš„æ´»åŠ¨æ—¶é—´
 	for (int i = 0; i < vex_number; i++)
-		vl[i] = total_time; 
+		vl[i] = total_time;
 	for (int i = vex_number - 2; i >= 0; i--) {
 		j = topology_queue[i];
 		p = Graph[j].first_edge;
@@ -99,30 +96,110 @@ int find_key_path(vex_node* Graph, int vex_number, int arc_number) {
 		}
 	}
 
-	printf("| Æğµã | ÖÕµã | ×îÔç¿ªÊ¼Ê±¼ä | ×î³Ù¿ªÊ¼Ê±¼ä | ÊÇ·ñÎª¹Ø¼üÂ·¾¶ \n");
+	printf("| èµ·ç‚¹ | ç»ˆç‚¹ | æœ€æ—©å¼€å§‹æ—¶é—´ | æœ€è¿Ÿå¼€å§‹æ—¶é—´ | æ˜¯å¦ä¸ºå…³é”®è·¯å¾„ \n");
 	for (int j = 0, i = 0; j < vex_number; j++) {
 		p = Graph[j].first_edge;
 		while (p) {
 			k = p->adjvex;
 			ee[++i] = ve[j];
 			el[i] = vl[k] - p->w;
-			printf("| %4c | %4c | %12d | %12d |", Graph[j].data, Graph[k].data, ee[i], el[i]);
+			printf("| %4d | %4d | %12d | %12d |", Graph[j].data, Graph[k].data, ee[i], el[i]);
 			if (el[i] == ee[i]) {
-				printf(" ÊÇ ");
-				sv[t++] = Graph[j].data; 
+				printf(" æ˜¯ ");
+				//ä¿å­˜å…³é”®æ´»åŠ¨
+				key_act[t].begin.vex = Graph[j].data;
+				key_act[t].begin.visit = 0; //å°†è®¿é—®ä½è®¾ç½®ä½æœªè®¿é—®
+				key_act[t].begin.flag = 0; //å°†è®¿é—®ä½è®¾ç½®ä¸ºæ— æ•ˆ
+				key_act[t].end.vex = Graph[k].data;
+				key_act[t].end.visit = 0;
+				key_act[t].end.flag = 0;
+				t++;
 			}
 			printf("\n");
 			p = p->next_edge;
 		}
 	}
-	printf("¹Ø¼üÂ·¾¶½ÚµãÎª£º");
-	sv[t] = Graph[vex_number - 1].data;
-	for (int i = 0; i <= t; i++) { 
-		printf("%c", sv[i]);
-		if (sv[i] != Graph[vex_number - 1].data)
-			printf("--->");
+	//ç»Ÿè®¡æœ‰å‡ æ¡å…³é”®è·¯å¾„TODO
+	int time = check(key_act, t);
+	repeat(key_act, t);	//è®¾ç½®åˆ†è·¯èŠ‚ç‚¹ç±»å‹
+	int path[20] = { 0 };
+	printf("å…³é”®è·¯å¾„æœ‰ï¼š\n");
+	while (time){
+		memset(path, 0, sizeof(path));
+		int i = 0, j = 0;
+		while (i != -1){
+			path[j++] = key_act[i].begin.vex;
+			int tmp = 0;
+			tmp = find(key_act, t, key_act[i].end.vex);
+			if (0 == key_act[tmp].begin.flag){ //å¦‚æœä¸æ˜¯åˆ†è·¯èŠ‚ç‚¹ï¼Œåˆ™æŒ‰ç…§æ­£å¸¸æµç¨‹æ¥
+				i = tmp;
+			}
+			else if (1 == key_act[tmp].begin.flag && 0 == key_act[tmp].begin.visit){ //å¦‚æœæ˜¯åˆ†è·¯èŠ‚ç‚¹ä¸”æ²¡æœ‰è¢«è®¿é—®è¿‡ï¼Œåˆ™è®¿é—®å®ƒ
+				i = tmp;
+				key_act[i].begin.visit = 1; //å°†åˆ†è·¯èŠ‚ç‚¹è®¾ç½®ä¸ºè®¿é—®è¿‡
+			}
+			else {
+				i = tmp-1; //special version
+			}
+		}
+		path[j] = key_act[t - 1].end.vex;
+		for (int i = 0; i <= j; i++) {
+			printf("%d", path[i]);
+			if (path[i] != path[j])
+				printf("--->");
+		}
+		printf("\n");
+		time--;
 	}
 	printf("\n");
-	printf("¹Ø¼üÂ·¾¶³¤¶ÈÎª£º%d¸öµ¥Î»Ê±¼ä\n", total_time);
+	printf("å…³é”®è·¯å¾„é•¿åº¦ä¸ºï¼š%dä¸ªå•ä½æ—¶é—´\n", total_time);
 	return 1;
+}
+
+int find(key_activities array[], int size, int next){
+	for (int i = 0; i < size; ++i){
+		if (array[i].begin.vex == next)
+			return i;
+	}
+	return -1;
+}
+
+//is special version
+void repeat(key_activities array[], int size){
+	for (int i = 0; i < size; ++i){
+		char cur_node = array[i].begin.vex;
+		for (int j = 0; j < size; ++j){
+			if (i != j && array[j].begin.vex == cur_node){
+				int index = find(array, size, array[j].end.vex); //æ‰¾åˆ°æ¢çº½èŠ‚ç‚¹æŒ‡å‘èŠ‚ç‚¹çš„èµ·å§‹å¼§ä½ç½®
+				array[index].end.flag = 1; //is special version
+				array[index].begin.flag = 1;
+			}
+		}
+	}
+	//å°†å‰©ä½™æ²¡æœ‰è®¾ç½®flagä½çš„æ”¯è·¯èŠ‚ç‚¹è®¾ç½®flagä½
+	for (int i = 0; i < size; ++i){
+		if (1 == array[i].end.flag){
+			int index = find(array, size, array[i - 1].end.vex);
+			array[i - 1].end.flag = 1;
+			array[index].begin.flag = 1;
+			break; //is special version
+		}
+	}
+}
+
+//is special version
+int check(key_activities array[], int size){
+	int n = 0; 
+	for (int i = 0; i < size; ++i){
+		char cur_node = array[i].begin.vex;
+		for (int j = 0; j < size; ++j){
+			if (i != j && array[j].begin.vex == cur_node){
+				n++;
+			}
+		}
+	}
+	if (0 == n){
+		return 1;
+	}
+	return n;
 }
