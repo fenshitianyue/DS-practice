@@ -48,7 +48,6 @@ void CreateGraph(VertexNode *GL, int n, int m) {//把顶点和边信息读入到
 		e = (EdgeNode*)malloc(sizeof(EdgeNode)); //采用头插法插入边表结点 
 		if (!e) {
 			puts("Graph init Error");
-			system("pause");
 			exit(1);
 		}
 		scanf("%d%d%d", &u, &v, &e->weight); //弧首，弧尾，权值
@@ -69,7 +68,6 @@ int TopoLogicalSort_DFS(int topo[], int Etv[], VertexNode *GL, int n) {//深度�
 	Stack = (int*)malloc(sizeof(int)* n); //分配栈空间 
 	if (!Stack) {
 		puts("Stack Error");
-		system("pause");
 		exit(1);
 	}
 	for (top = i = 0; i<n; i++) {//将入度为0的顶点入栈 
@@ -111,10 +109,8 @@ void PrintPath(VertexNode *GL, int Etv[], int Ltv[], int path[], int top, int en
 		return;
 	}
 
-	for (e = GL[u].firstEdge; e != NULL; e = e->next)
-	{
-		if (Etv[e->adjvex] == Ltv[e->adjvex])//关键事件
-		{
+	for (e = GL[u].firstEdge; e != NULL; e = e->next) {
+		if (Etv[e->adjvex] == Ltv[e->adjvex]) {//关键事件
 			path[top++] = e->adjvex; //入栈 
 			PrintPath(GL, Etv, Ltv, path, top, end);
 			top--; //退栈 
@@ -122,8 +118,7 @@ void PrintPath(VertexNode *GL, int Etv[], int Ltv[], int path[], int top, int en
 	}
 }
 
-void CriticalPath(VertexNode *GL, int n)//求关键路径 
-{
+void CriticalPath(VertexNode *GL, int n) {//求关键路径 
 	int i, u, v;
 	EdgeNode *e;
 	int topo[MAXN] = { 0 }, path[MAXN] = { 0 };
@@ -131,7 +126,6 @@ void CriticalPath(VertexNode *GL, int n)//求关键路径
 
 	if (!TopoLogicalSort_DFS(topo, Etv, GL, n)) {
 		puts("不存在关键路径");
-		system("pause");
 		return;
 	}
 
@@ -155,8 +149,7 @@ void CriticalPath(VertexNode *GL, int n)//求关键路径
 }
 
 
-int main()
-{
+int main() {
 	int m, n;
 	VertexNode GL[MAXN];
 
