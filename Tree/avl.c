@@ -129,7 +129,7 @@ int InsertAvl(BSTree* t, DataType e, Bool* taller) {
     (*t)->lchild = NULL;
     (*t)->rchild = NULL;
     *taller = TRUE;
-    return 0;
+    /*注意:这里不能直接返回0，因为插入一个节点可能会影响树的平衡*/
   } else if(e == (*t)->data) {
     *taller = FALSE;
     return 0; /* 这里对插入重复节点做的处理是直接返回成功标标记，表示插入成功 */
