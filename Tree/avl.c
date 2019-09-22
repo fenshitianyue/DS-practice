@@ -26,7 +26,7 @@ void R_Rotate(BSTree* p) {
 void L_Rotate(BSTree* p) {
   BSTree rc = (*p)->rchild;
   (*p)->rchild = rc->lchild;
-  rc->rchild = *p;
+  rc->lchild = *p;
   *p = rc;
 }
 
@@ -65,7 +65,6 @@ void LeftBalance(BSTree* t) {
 }
 
 /* 对以t为根节点的二叉树做右子树的平衡处理,和左子树类似，做一个镜像处理 */
-
 void RightBalance(BSTree* t) {
   BSTree rc = (*t)->rchild;
   BSTree lc = NULL;
@@ -130,12 +129,12 @@ int InsertAvl(BSTree* t, DataType e, Bool* taller) {
     (*t)->lchild = NULL;
     (*t)->rchild = NULL;
     *taller = TRUE;
-    /*return 0;*/
+    return 0;
   } else if(e == (*t)->data) {
     *taller = FALSE;
-    return 0; /*这里对插入重复节点做的处理是直接返回成功标标记，表示插入成功*/
-  } else if(e < (*t)->data) { /*如果e小于根节点的数据域，则插入到根节点的左子树中*/
-    /* 如果插入过程不会影响树本身的平衡，则结束插入过程 TODO*/ 
+    return 0; /* 这里对插入重复节点做的处理是直接返回成功标标记，表示插入成功 */
+  } else if(e < (*t)->data) { /* 如果e小于根节点的数据域，则插入到根节点的左子树中 */
+    /* 如果插入过程不会影响树本身的平衡，则结束插入过程 */ 
     if(!InsertAvl(&(*t)->lchild, e, taller)) {
       return 0;
     }
@@ -181,7 +180,7 @@ int InsertAvl(BSTree* t, DataType e, Bool* taller) {
 }
 
 int main() {
-  int arr[] = {1, 23, 45, 36, 98, 9, 4, 35, 23};
+  int arr[] = {1, 23, 45, 36, 98, 9, 4, 35};
   BSTree root = NULL;
   Bool taller;
   for(size_t i = 0; i < sizeof(arr) / sizeof(arr[0]); ++i) {
