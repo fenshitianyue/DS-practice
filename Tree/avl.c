@@ -78,17 +78,120 @@ void RightBalance(BSTree* t) {
       lc = rc->lchild;
       switch(lc->bf) {
         case LH:
+          (*t)->bf = EH;
+          rc->bf = RH;
           break;
         case EH:
+          (*t)->bf = rc->bf = EH;
           break;
         case RH:
+          (*t)->bf = EH;
+          rc->bf = LH;
           break;
       }
-      break;
       lc->bf = EH;
+      R_Rotate(&(*t)->rchild);
+      L_Rotate(t);
+      break;
   }
 }
 
+/* 在以t为根节点的AVL树中查找数据域为e的节点，如果找到返回1；没找到返回0*/
+Bool FindAvl(BSTree root, DataType e, BSTree* pos) {
+  BSTree pt = root;
+  *pos = NULL;
+  while(pt) {
+    if(e == pt->data) {
+      *pos = pt;
+      return TRUE;
+    } else if(pt->data > e) {
+      pt = pt->lchild;
+    } else {
+      pt = pt->rchild;
+    }
+  }
+  return FALSE;
+}
 
+/* 中序遍历平衡二叉树 */
+void InorderAvl(BSTree root) {
+  if(root->lchild) 
+    InorderAvl(root->lchild);
+  printf("%d ", root->data);
+  if(root->rchild)
+    InorderAvl(root->rchild);
+}
+
+int InsertAvl(BSTree* t, DataType e, Bool* taller) {
+  if(NULL == (*t)) {
+    (*t) = (BSTree)malloc(sizeof(BSTNode));
+    (*t)->bf = EH;
+    (*t)->data = e;
+    (*t)->lchild = NULL;
+    (*t)->rchild = NULL;
+    *taller = TRUE;
+    /*return 0;*/
+  } else if(e == (*t)->data) {
+    *taller = FALSE;
+    return 0; /*这里对插入重复节点做的处理是直接返回成功标标记，表示插入成功*/
+  } else if(e < (*t)->data) { /*如果e小于根节点的数据域，则插入到根节点的左子树中*/
+    /* 如果插入过程不会影响树本身的平衡，则结束插入过程 TODO*/ 
+    if(!InsertAvl(&(*t)->lchild, e, taller)) {
+      return 0;
+    }
+    /* 判断插入是否会导致整棵树的深度+1 */
+    if(*taller) {
+      switch((*t)->bf) {
+        case LH:
+          LeftBalance(t);
+          *taller = FALSE;
+          break;
+        case EH:
+          (*t)->bf = LH;
+          *taller = TRUE;
+          break;
+        case RH:
+          (*t)->bf = EH;
+          *taller = FALSE;
+          break;
+      }
+    }
+  } else {
+    if(!InsertAvl(&(*t)->rchild, e, taller)) {
+      return 0;
+    }
+    if(*taller) {
+      switch((*t)->bf) {
+        case LH:
+          (*t)->bf = EH;
+          *taller = FALSE;
+          break;
+        case EH:
+          (*t)->bf = RH;
+          *taller = TRUE;
+          break;
+        case RH:
+          RightBalance(t);
+          *taller = FALSE;
+          break;
+      }
+    }
+  }
+  return 1;
+}
+
+int main() {
+  int arr[] = {1, 23, 45, 36, 98, 9, 4, 35, 23};
+  BSTree root = NULL;
+  Bool taller;
+  for(size_t i = 0; i < sizeof(arr) / sizeof(arr[0]); ++i) {
+    InsertAvl(&root, arr[i], &taller);
+  }
+
+  InorderAvl(root);
+  printf("\n");
+
+  return 0;
+}
 
 
