@@ -1,191 +1,94 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//定义平衡因子数
-#define LH 1
+#define LH 1 /*H -> height*/
 #define EH 0
 #define RH -1
-typedef int ElemType;
-typedef enum { FALSE, TRUE } Bool;
 
-//定义二叉搜索树
-typedef struct BSTNode{
-  ElemType _data;
-  int _bf; //balance flag
-  struct BSTNode* _lchild, *_rchild;
-}*BSTree, BSTNode;
+typedef int DataType;
+typedef enum {FALSE, TRUE} Bool;
 
-//对根节点做右旋处理
-void R_Rotate(BSTree* p){
-  BSTree lc = (*p)->_lchild; //保存旧根节点的左子树
-  (*p)->_lchild = lc->_rchild; //将旧根节点的左子树的右子树赋给旧根节点的左子树
-  lc->_rchild = *p;
+typedef struct BSTNode {
+  DataType data;
+  int bf;
+  struct BSTNode* lchild, *rchild;
+}* BSTree, BSTNode;
+
+/* 对以p为根节点的二叉树做右旋处理 */
+void R_Rotate(BSTree* p) {
+  BSTree lc = (*p)->lchild; 
+  (*p)->lchild = lc->rchild;
+  lc->rchild = *p;
   *p = lc;
 }
 
-//对根节点做左旋处理
-void L_Rotate(BSTree* p){
-  BSTree rc = (*p)->_rchild; 
-  (*p)->_rchild = rc->_lchild;
-  rc->_lchild = *p;
+/* 对以p为根节点的二叉树做左旋处理 */
+void L_Rotate(BSTree* p) {
+  BSTree rc = (*p)->rchild;
+  (*p)->rchild = rc->lchild;
+  rc->rchild = *p;
   *p = rc;
 }
 
-void LeftBalance(BSTree* T){
-  BSTree lc, rc;
-  lc = (*T)->_lchild;
-  switch(lc->_bf){
+/* 对以t为根节点的二叉树做左子树的平衡处理 */
+void LeftBalance(BSTree* t) {
+  BSTree lc = (*t)->lchild; 
+  BSTree rc = NULL;
+  /* 查看以t的左子树为根节点的子树失去平衡的原因：
+   *  1.如果bf的值为1，说明新节点添加在左子树为根节点的左子树中，需要进行右旋处理
+   *  2.如果bf的值为-1，说明新节点添加在左子树为根节点的右子树中，需要进行左-右双旋
+   */
+  switch(lc->bf) {
     case LH:
-      (*T)->_bf = lc->_bf = EH;
-      R_Rotate(T);
+      (*t)->bf = lc->bf = EH;
       break;
     case RH:
-      rc = lc->_rchild;
-      switch(rc->_bf){
+      rc = lc->rchild;
+      switch(rc->bf) {
         case LH:
-          (*T)->_bf = RH;
-          lc->_bf = EH;
+          (*t)->bf = RH; /* 设置旋转前的根节点的平衡因子 */
+          lc->bf = EH; /* 设置旋转前的根节点的左子树的平衡因子 */
           break;
         case EH:
-          (*T)->_bf = lc->_bf = EH;
+          (*t)->bf = lc->bf = EH;
           break;
         case RH:
-          (*T)->_bf = EH;
-          lc->_bf = LH;
+          (*t)->bf = EH; /* 设置旋转前的根节点的平衡因子 */
+          lc->bf = LH; /* 设置旋转前的根节点的左子树的平衡因子 */
           break;
       }
-      rc->_bf = EH;
-      L_Rotate(&(*T)->_lchild);
-      R_Rotate(T);
+      rc->bf = EH; /* 设置旋转后的根节点的平衡因子 */
+      L_Rotate(&(*t)->lchild); /* 对旋转前的根节点的左子树做右旋处理 */
+      R_Rotate(t); /* 对旋转前的根节点做右旋处理 */
       break;
   }
 }
 
-void RightBalance(BSTree* T){
-  BSTree lc, rc;
-  lc = (*T)->_rchild;
-  switch(lc->_bf){
+/* 对以t为根节点的二叉树做右子树的平衡处理,和左子树类似，做一个镜像处理 */
+
+void RightBalance(BSTree* t) {
+  BSTree rc = (*t)->rchild;
+  BSTree lc = NULL;
+  switch(rc->bf) {
     case RH:
-      (*T)->_bf = lc->_bf = EH;
-      L_Rotate(T);
+      (*t)->bf = rc->bf = EH;
+      L_Rotate(t);
       break;
     case LH:
-      rc = lc->_lchild;
-      switch(rc->_bf){
+      lc = rc->lchild;
+      switch(lc->bf) {
         case LH:
-          (*T)->_bf = EH;
-          lc->_bf = RH;
           break;
         case EH:
-          (*T)->_bf = lc->_bf = EH;
           break;
         case RH:
-          (*T)->_bf = EH;
-          lc->_bf = LH;
           break;
       }
-      rc->_bf = EH;
-      R_Rotate(&(*T)->_rchild);
-      L_Rotate(T);
       break;
+      lc->bf = EH;
   }
 }
 
-int InsertAVL(BSTree* T, ElemType e, bool* taller){
-  if(NULL == *T){
-    *T = (BSTree)malloc(sizeof(BSTNode));
-    (*T)->_bf = EH;
-    (*T)->_data = e;
-    (*T)->_lchild = NULL;
-    (*T)->_rchild = NULL;
-    *taller = TRUE;
-  } else if (e == (*T)->_data){
-    *taller = FALSE;
-    return 0;
-  } else if (e < (*T)->_data){
-    if(!InsertAVL(&(*T)->_lchild, e, taller)){
-      return 0;
-    } 
-    if(*taller){
-      switch((*T)->_bf){
-        case LH:
-          LeftBalance(T);
-          *taller = FALSE;
-          break;
-        case EH:
-          (*T)->_bf = LH;
-          *taller = TRUE;
-          break;
-        case RH:
-          (*T)->_bf = EH;
-          *taller = FALSE;
-          break;
-      }
-    } 
-  } else {
-    if(!InsertAVL(&(*T)->_rchild, e, taller)){
-      return 0;
-    }
-    if(*taller){
-      switch((*T)->_bf){
-        case LH:
-          (*T)->_bf = EH;
-          *taller = FALSE;
-          break;
-        case EH:
-          (*T)->_bf = RH;
-          *taller = TRUE;
-          break;
-        case RH:
-          RightBalance(T);
-          *taller = FALSE;
-          break;
-      }//switch
-    }//if
-  }//else
-  return 1;
-}
 
-bool FindNode(BSTree root, ElemType e, BSTree* pos){
-  BSTree pt = root;
-  *pos = NULL;
-  while(pt){
-    if(e == pt->_data){
-      (*pos) = pt;
-      return TRUE;
-    } else if(e < pt->_data) {
-      pt = pt->_lchild;
-    } else {
-      pt = pt->_rchild;
-    }
-  }
-  return FALSE;
-}
 
-void InorderTra(BSTree root){
-  if(root->_lchild){
-    InorderTra(root->_lchild);
-  }
-  printf("%d ", root->_data);
-  if(root->_rchild){
-    InorderTra(root->_rchild);
-  }
-}
 
-//test
-int main() {
-  int array[] = {1, 43, 21, 89, 10, 9}; 
-  BSTree root = NULL;
-  BSTree pos = NULL;
-  bool taller;
-  for(size_t i = 0; i < sizeof(array) / sizeof(array[0]); ++i){
-    InsertAVL(&root, array[i], &taller);
-  }
-  InorderTra(root);
-  if(FindNode(root, 10, &pos)){
-    printf("\n%d\n", pos->_data);
-  } else {
-    printf("\nNot find this node\n");
-  }
-  return 0;
-}
